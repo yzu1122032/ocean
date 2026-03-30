@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dreamcore Portfolio</title>
+
+  <!-- 字體 -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400&display=swap"
+    rel="stylesheet">
+
+  <!-- Font Awesome icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* ===== 基本 ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1b1a2f, #05040a 70%);
+      color: #eae8ff;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ===== 導覽列 ===== */
+    .nav {
+      height: 100px;
+      padding: 0 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 20;
+
+      background: rgba(15, 14, 30, .45);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(160, 160, 255, .08);
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      letter-spacing: 3px;
+      opacity: .9;
+    }
+
+    .menu {
+      display: flex;
+      gap: 56px;
+      list-style: none;
+    }
+
+    .menu li {
+      position: relative;
+      font-size: 14px;
+      letter-spacing: 1.2px;
+      cursor: pointer;
+      opacity: .7;
+      transition: .4s;
+    }
+
+    .menu li::after {
+      content: '';
+      position: absolute;
+      left: -10%;
+      bottom: -8px;
+      width: 120%;
+      height: 1px;
+      background: linear-gradient(90deg,
+          transparent,
+          rgba(122, 162, 227, .8),
+          transparent);
+      opacity: 0;
+      transition: .4s;
+    }
+
+    .menu li:hover {
+      opacity: 1;
+    }
+
+    .menu li:hover::after {
+      opacity: 1;
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 88px;
+      /* ⬅ 主標大很多 */
+      letter-spacing: 6px;
+      /* ⬅ 高級感 */
+      font-weight: 700;
+      position: relative;
+      animation: fadeUp 1.4s ease forwards, titleBreath 4s ease-in-out infinite;
+    }
+
+    .hero h1::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      color: #9aa4ff;
+      filter: blur(18px);
+      opacity: .45;
+      transform: scale(1.05);
+    }
+
+    .hero p {
+      margin-top: 18px;
+      font-size: 15px;
+      opacity: .75;
+      animation: fadeUp 1.6s ease forwards;
+    }
+
+    @keyframes titleBreath {
+      0% {
+        text-shadow:
+          0 0 20px rgba(120, 150, 255, .25),
+          0 0 40px rgba(140, 160, 255, .15);
+      }
+
+      50% {
+        text-shadow:
+          0 0 36px rgba(160, 190, 255, .45),
+          0 0 80px rgba(120, 140, 255, .25);
+      }
+
+      100% {
+        text-shadow:
+          0 0 20px rgba(120, 150, 255, .25),
+          0 0 40px rgba(140, 160, 255, .15);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width:768px) {
+      .hero h1 {
+        font-size: 56px;
+        letter-spacing: 3px;
+      }
+    }
+
+    /* ===== icon 掉落 ===== */
+    #iconContainer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .falling-icon {
+      position: absolute;
+      top: -40px;
+      opacity: .85;
+      filter: drop-shadow(0 0 0 rgba(140, 130, 210, 0));
+      transition: filter .4s ease;
+    }
+
+    .falling-icon.glow {
+      filter:
+        drop-shadow(0 0 6px rgba(143, 134, 201, .6)) drop-shadow(0 0 14px rgba(122, 162, 227, .4));
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh);
+      }
+    }
+
+    /* ===== 殘影 ===== */
+    .trail {
+      position: fixed;
+      pointer-events: none;
+      opacity: .25;
+      filter: blur(4px);
+      transition: opacity .6s ease;
+    }
+
+    /* ===== 粒子 ===== */
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* ===== 游標 ===== */
+    #cursor {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 1px solid rgba(220, 220, 255, .25);
+      background: radial-gradient(circle, rgba(220, 220, 255, .18), transparent 70%);
+      pointer-events: none;
+      mix-blend-mode: screen;
+      transform: translate(-50%, -50%);
+      z-index: 999;
+
+    }
+
+    @media (max-width: 768px) {
+      #cursor {
+        display: none;
+      }
+    }
+
+    /* ===== Works Overlay ===== */
+    #worksOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 20, .75);
+      backdrop-filter: blur(18px);
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: .6s ease;
+    }
+
+    #worksOverlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .works-panel {
+      width: 90%;
+      max-width: 1200px;
+      margin: 120px auto;
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      right: 0;
+      top: -40px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: .6;
+    }
+
+    .close-btn:hover {
+      opacity: 1;
+    }
+
+    .works-title {
+      font-family: 'Playfair Display', serif;
+      letter-spacing: 6px;
+      font-size: 36px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    /* ===== Cards ===== */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 28px;
+    }
+
+    .work-card {
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid rgba(140, 150, 255, .15);
+      border-radius: 18px;
+      padding: 18px;
+      transition: .4s ease;
+    }
+
+    .work-card:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, .08);
+    }
+
+    .card-img {
+      height: 140px;
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, #7AA2E3, #8F86C9);
+      margin-bottom: 16px;
+    }
+
+    .work-card h3 {
+      font-size: 16px;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .work-card p {
+      font-size: 13px;
+      opacity: .75;
+      line-height: 1.6;
+    }
+
+    .work-card button {
+      margin-top: 14px;
+      width: 100%;
+      padding: 10px 0;
+      border-radius: 20px;
+      border: 1px solid rgba(140, 150, 255, .4);
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      transition: .4s;
+    }
+
+    .work-card button:hover {
+      background: rgba(140, 150, 255, .25);
+    }
+
+    /* ===== Carousel ===== */
+    .carousel {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cards {
+      position: relative;
+      width: 100%;
+      height: 360px;
+    }
+
+    .work-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 260px;
+      transform:
+        translate(-50%, -50%) scale(.7);
+      opacity: .4;
+      filter: blur(4px);
+      transition:
+        transform .5s ease,
+        opacity .5s ease,
+        filter .5s ease;
+    }
+
+/* 中間那張更大 */
+.work-card.active {
+  transform: translate(-50%, -30%) scale(1.5); /* ← 中間卡片變更大 */
+  opacity: 1;
+  filter: blur(0);
+  z-index: 3;
+}
+
+/* 左右保持稍微大一點 */
+.work-card.left {
+  transform: translate(calc(-50% - 260px), -40%) scale(.8);
+  z-index: 2;
+}
+
+.work-card.right {
+  transform: translate(calc(-50% + 260px), -40%) scale(.8);
+  z-index: 2;
+}
+
+
+.work-card.hidden {
+  transform: translate(-50%, -50%) scale(.4);
+  opacity: 0;
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 按鈕位置 */
+.works-panel .nav-btn {
+  position: absolute;
+  top: 55%; /* 垂直靠近卡片中心 */
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 40px;
+  cursor: pointer;
+  opacity: .6;
+  z-index: 10;
+  transition: .3s;
+}
+
+.works-panel .nav-btn:hover { opacity: 1; }
+
+.works-panel .nav-btn.left { left: 30px; }   /* 距離 panel 左邊 30px */
+.works-panel .nav-btn.right { right: 30px; } /* 距離 panel 右邊 30px */
+
+  </style>
+</head>
+
+<body>
+
+<div id="worksOverlay">
+  <div class="works-panel">
+    <button class="close-btn">✕</button>
+
+    <h2 class="works-title">WORKS</h2>
+
+    <!-- 左右切換按鈕 -->
+    <button class="nav-btn left">‹</button>
+    <button class="nav-btn right">›</button>
+
+    <div class="carousel">
+      <div class="cards">
+        <!-- Web -->
+        <div class="work-card">
+          <div class="card-img"></div>
+          <h3>Web Design</h3>
+          <p>海洋環保主題網站與大二修圖網頁設計，結合視覺敘事與互動。</p>
+          <button>View Project</button>
+        </div>
+
+        <!-- App -->
+        <div class="work-card">
+          <div class="card-img"></div>
+          <h3>App Development</h3>
+          <p>Android Studio 製作咖啡廳 App，包含點餐與介面流程設計。</p>
+          <button>View Project</button>
+        </div>
+
+        <!-- Figma -->
+        <div class="work-card">
+          <div class="card-img"></div>
+          <h3>Figma UI</h3>
+          <p>以介面邏輯與使用體驗為核心的 App UI 設計作品。</p>
+          <button>View Project</button>
+        </div>
+
+        <!-- TouchDesigner -->
+        <div class="work-card">
+          <div class="card-img"></div>
+          <h3>TouchDesigner</h3>
+          <p>即時互動影像與手勢控制的視覺實驗作品。</p>
+          <button>View Project</button>
+        </div>
+
+        <!-- Unity -->
+        <div class="work-card">
+          <div class="card-img"></div>
+          <h3>Unity Game Art</h3>
+          <p>以美術專案方式呈現的 Unity 遊戲視覺與場景設計。</p>
+          <button>View Project</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <nav class="nav">
+    <div class="logo">YZ PORTFOLIO</div>
+    <ul class="menu">
+      <li>Home</li>
+      <li>Works</li>
+      <li>About</li>
+      <li>Contact</li>
+    </ul>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-text">
+      <h1 data-text="PORTFOLIO">PORTFOLIO</h1>
+      <p class="subtitle">Web · App · Game · Interactive Design</p>
+    </div>
+  </div>
+
+  <canvas id="particles"></canvas>
+  <div id="iconContainer"></div>
+  <div id="cursor"></div>
+
+  <script>
+    /* ===== 指標（滑鼠＋觸控） ===== */
+    const pointer = { x: -999, y: -999 };
+    const cursor = document.getElementById('cursor');
+
+    /* 桌機滑鼠 */
+    window.addEventListener('mousemove', e => {
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+
+    /* 手機觸控 */
+    window.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      pointer.x = t.clientX;
+      pointer.y = t.clientY;
+    });
+
+    window.addEventListener('touchmove', e => {
+      const t = e.touches[0];
+      pointer.x = t.clientX;
+      pointer.y = t.clientY;
+    });
+
+    /* 手指離開畫面 */
+    window.addEventListener('touchend', () => {
+      pointer.x = -999;
+      pointer.y = -999;
+    });
+
+    /* ===== icon ===== */
+    const icons = [
+      'fa-brands fa-figma',          // Figma
+      'fa-brands fa-unity',          // Unity
+      'fa-brands fa-android',        // Android Studio
+      'fa-solid fa-code',            // VS Code（語意正確）
+      'fa-solid fa-circle-nodes'     // TouchDesigner（節點/互動）
+    ];
+
+    const colors = ['#8F86C9', '#7AA2E3'];
+    const container = document.getElementById('iconContainer');
+
+    function createIcon() {
+      const i = document.createElement('i');
+      i.className = `falling-icon ${icons[Math.floor(Math.random() * icons.length)]}`;
+      i.style.left = Math.random() * 100 + 'vw';
+      i.style.fontSize = Math.random() * 22 + 22 + 'px';
+      i.style.color = colors[Math.floor(Math.random() * colors.length)];
+      const d = Math.random() * 10 + 14;
+      i.style.animation = `fall ${d}s linear infinite`;
+      container.appendChild(i);
+
+      const data = { x: 0, y: 0 };
+
+      function update() {
+        const r = i.getBoundingClientRect();
+        const dx = r.left + r.width / 2 - pointer.x;
+        const dy = r.top + r.height / 2 - pointer.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const range = 120;
+
+        if (dist < range) {
+          const force = (1 - dist / range) * 28;
+          data.x += (dx / dist) * force;
+          data.y += (dy / dist) * force;
+          i.classList.add('glow');
+          createTrail(i, r, data);
+        } else {
+          data.x *= 0.9;
+          data.y *= 0.9;
+          i.classList.remove('glow');
+        }
+        i.style.transform = `translate(${data.x}px,${data.y}px)`;
+        requestAnimationFrame(update);
+      }
+      update();
+      setTimeout(() => i.remove(), d * 1000);
+    }
+
+    function createTrail(icon, rect, data) {
+      const t = icon.cloneNode(true);
+      t.classList.add('trail');
+      t.style.left = rect.left + 'px';
+      t.style.top = rect.top + 'px';
+      t.style.transform = `translate(${data.x}px,${data.y}px)`;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 600);
+    }
+
+    setInterval(createIcon, 700);
+
+    /* ===== 粒子 ===== */
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [];
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.4 + .3,
+        s: Math.random() * .3 + .1
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(255,255,255,.6)';
+      particles.forEach(p => {
+        p.y += p.s;
+        if (p.y > h) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+    
+    /* ===== Works ===== */
+    const worksOverlay = document.getElementById('worksOverlay');
+    const worksBtn = document.querySelector('.menu li:nth-child(2)');
+    const closeBtn = document.querySelector('.close-btn');
+
+    worksBtn.addEventListener('click', () => {
+      worksOverlay.classList.add('show');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      worksOverlay.classList.remove('show');
+    });
+    /* ===== Carousel Logic ===== */
+    const cards = document.querySelectorAll('.work-card');
+    const btnLeft = document.querySelector('.nav-btn.left');
+    const btnRight = document.querySelector('.nav-btn.right');
+
+    let current = 0;
+
+function updateCarousel() {
+  cards.forEach((card, i) => {
+    card.classList.remove('active', 'left', 'right', 'hidden');
+
+    if (i === current) {
+      card.classList.add('active');
+    } else if (i === current - 1) {
+      card.classList.add('left');
+    } else if (i === current + 1) {
+      card.classList.add('right');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+
+
+    btnLeft.addEventListener('click', () => {
+      if (current > 0) {
+        current--;
+        updateCarousel();
+      }
+    });
+
+    btnRight.addEventListener('click', () => {
+      if (current < cards.length - 1) {
+        current++;
+        updateCarousel();
+      }
+    });
+
+    updateCarousel();
+
+  </script>
+
+</body>
+
+</html>
